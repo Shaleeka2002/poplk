@@ -1,0 +1,131 @@
+-- Create the main database
+CREATE DATABASE poplk_db;
+USE poplk_db;
+
+-- Table for drama categories
+CREATE TABLE categories (
+    category_id INT AUTO_INCREMENT PRIMARY KEY,
+    category_name VARCHAR(50) NOT NULL,
+    category_slug VARCHAR(50) NOT NULL
+);
+
+-- Table for dramas
+CREATE TABLE dramas (
+    drama_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    title_sinhala VARCHAR(255),
+    category_id INT NOT NULL,
+    genre VARCHAR(100),
+    description TEXT,
+    release_year INT,
+    imdb_rating DECIMAL(3,1),
+    is_new BOOLEAN DEFAULT FALSE,
+    poster_url VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+-- Table for videos (trailers, episodes, etc.)
+CREATE TABLE videos (
+    video_id INT AUTO_INCREMENT PRIMARY KEY,
+    drama_id INT NOT NULL,
+    video_type ENUM('trailer', 'episode', 'teaser', 'clip') NOT NULL,
+    title VARCHAR(255),
+    video_url VARCHAR(255) NOT NULL,
+    episode_number INT,
+    duration VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (drama_id) REFERENCES dramas(drama_id) ON DELETE CASCADE
+);
+
+-- Table for slideshow content
+CREATE TABLE slideshow (
+    slide_id INT AUTO_INCREMENT PRIMARY KEY,
+    drama_id INT NOT NULL,
+    title VARCHAR(255),
+    description TEXT,
+    video_url VARCHAR(255),
+    button_text VARCHAR(50) DEFAULT 'Watch Now',
+    button_link VARCHAR(255),
+    display_order INT NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (drama_id) REFERENCES dramas(drama_id) ON DELETE CASCADE
+);
+
+-- Table for users (if you plan to add user accounts later)
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP NULL
+);
+
+-- Table for user watchlist/favorites (if needed)
+CREATE TABLE user_favorites (
+    favorite_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    drama_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (drama_id) REFERENCES dramas(drama_id) ON DELETE CASCADE,
+    UNIQUE KEY (user_id, drama_id)
+);
+
+-- Insert initial categories
+INSERT INTO categories (category_name, category_slug) VALUES
+('KDrama', 'kdrama'),
+('CDrama', 'cdrama'),
+('JDrama', 'jdrama'),
+('Others', 'others');
+
+-- Sample data for dramas (based on your HTML)
+INSERT INTO dramas (title, title_sinhala, category_id, genre, description, imdb_rating, is_new, poster_url) VALUES
+('Mr Plankton', 'ප්ලැන්ක්ටන් මහතා', 1, 'Drama', 'අවාසනාවන්ත මිනිසෙක් සහ ඔහුගේ හිටපු, අවාසනාවන්තම මනාලිය, ඔහුගේ ජීවිතයේ අවසාන ගමනේදී එකිනෙකා සමඟ යාමට බල කෙරෙයි.', 6.5, TRUE, '10 New Korean Dramas Coming Out In November 2024 To Add To Your Watch List.jpeg'),
+('All of Us are Dead', NULL, 1, 'Horror, Thriller, Action, Adventure', 'සිරවී සිටින සිසුන් zombie වෛරස් පැතිරීම සඳහා බිම් ශුන්‍ය වී ඇති ඔවුන්ගේ උසස් පාසලෙන් ගැලවිය යුතුය.', 7.6, TRUE, 'all-of-us-are-dead.jpeg'),
+('Hidden Love', NULL, 2, 'Romantic', 'Sang Zhi ඇගේ සහෝදරයාගේ මිතුරෙකු වන Duan Jia Xu සමඟ ආදරයෙන් බැඳී සිටින අතර, ඇය එම විශ්ව විද්‍යාලයට යාමට පටන් ගත් පසු ඔවුන් වඩාත් සමීප වේ.', 6.5, FALSE, 'hidden-love.jpeg'),
+('The Queen Who Crown', NULL, 1, 'Historical', NULL, 7.7, FALSE, 'the-queen-who-crown.jpeg'),
+('True Beauty', NULL, 1, 'Mystery', NULL, 6.5, FALSE, 'True beauty.jpeg'),
+('Love Next Door', NULL, 1, 'Mystery', NULL, 6.5, FALSE, 'Love Next Door KDrama Poster.jpeg'),
+('My Demon', NULL, 1, 'Mystery', NULL, 6.5, FALSE, 'images (1).jpeg'),
+('Goblin', NULL, 1, 'Mystery', NULL, 6.5, FALSE, 'Goblin.jpeg'),
+('Squid Game Season 2', NULL, 1, 'Mystery', NULL, 6.5, FALSE, 'images (5).jpeg'),
+('A Business Proposal', NULL, 1, 'Romantic', NULL, 7.5, FALSE, 'a buissness proposal.jpg'),
+('Extraordinary You', NULL, 1, 'Teen', NULL, 5.5, FALSE, 'extraordinary you.jpg'),
+('The K2', NULL, 1, 'Mystery', NULL, 6.5, FALSE, 'The K2.jpg'),
+('The Tale of Nokdu', NULL, 1, 'History', NULL, 4.5, FALSE, 'The tale of nokdu.jpg'),
+('Welcome to Samdal-ri', NULL, 1, 'Romantic', NULL, 6.5, FALSE, 'welcome to samdal-ri.jpg');
+
+-- Sample data for CDramas
+INSERT INTO dramas (title, category_id, genre, imdb_rating, is_new, poster_url) VALUES
+('Ski into Love', 2, 'Love', 6.5, TRUE, 'ski-into-love.jpeg'),
+('Hidden Love', 2, 'Romantic', 6.5, FALSE, 'hidden-love-cdrama.jpeg'),
+('Unforgettable Love', 2, 'Comedy', 6.5, FALSE, 'Unforgettable Love.jpeg'),
+('Eat Run Love', 2, 'Love', 6.5, TRUE, 'eat-run-love.jpeg'),
+('Put Your Head On My Shoulder', 2, 'Romantic', 5.2, FALSE, 'Put your head on my shoulder.jpg'),
+('You Are My Glory', 2, 'Romantic', 4.5, FALSE, 'You are my glory cdrama poster.jpg');
+
+-- Sample data for JDramas
+INSERT INTO dramas (title, category_id, genre, imdb_rating, poster_url) VALUES
+('Dr Chocolate', 3, 'Care', 6.5, 'dr-chocolate.jpeg'),
+('My Happy Marriage', 3, 'Action', 6.5, 'my happy marriage.jpeg'),
+('Our Secret Diary', 3, 'Romance', 6.5, 'Our Secret Diary 2023 _ Наш тайный дневник 2023.jpeg'),
+('Lovesick Ellie', 3, 'Thriller', 6.5, 'Lovesick Ellie.jpeg');
+
+-- Sample data for Others
+INSERT INTO dramas (title, category_id, genre, imdb_rating, poster_url) VALUES
+('4 Minutes', 4, '', 6.5, '4 Minutes 2024 _ 4 Минуты 2024.jpeg');
+
+-- Sample data for slideshow
+INSERT INTO slideshow (drama_id, title, description, video_url, button_link, display_order) VALUES
+(1, 'Mr Plankton', 'අවාසනාවන්ත මිනිසෙක් සහ ඔහුගේ හිටපු, අවාසනාවන්තම මනාලිය, ඔහුගේ ජීවිතයේ අවසාන ගමනේදී එකිනෙකා සමඟ යාමට බල කෙරෙයි.', 'Mr. Plankton _ Official Trailer _ Netflix EN-SUB (1080p).mp4', 'MrPlankton.html', 1),
+(2, 'All of Us Are Dead', 'සිරවී සිටින සිසුන් zombie වෛරස් පැතිරීම සඳහා බිම් ශුන්‍ය වී ඇති ඔවුන්ගේ උසස් පාසලෙන් ගැලවිය යුතුය.', 'All of Us Are Dead _ Official Trailer _ Netflix (1080p).mp4', 'MrPlankton.html', 2),
+(3, 'Hidden Love', 'Sang Zhi ඇගේ සහෝදරයාගේ මිතුරෙකු වන Duan Jia Xu සමඟ ආදරයෙන් බැඳී සිටින අතර, ඇය එම විශ්ව විද්‍යාලයට යාමට පටන් ගත් පසු ඔවුන් වඩාත් සමීප වේ.', 'hidden love.mp4', 'MrPlankton.html', 6);
+
+-- Sample data for videos
+INSERT INTO videos (drama_id, video_type, title, video_url) VALUES
+(1, 'trailer', 'Official Trailer', 'Mr. Plankton _ Official Trailer _ Netflix EN-SUB (1080p).mp4'),
+(2, 'trailer', 'Official Trailer', 'All of Us Are Dead _ Official Trailer _ Netflix (1080p).mp4'),
+(3, 'trailer', 'Official Trailer', 'hidden love.mp4');
