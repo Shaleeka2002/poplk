@@ -1,2 +1,2 @@
 # poplk
-This is a movie website for watching dramas
+This is a drama website for watching dramas
